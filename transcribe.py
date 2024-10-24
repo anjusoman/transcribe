@@ -8,7 +8,6 @@ import os
 
 basepath = os.path.join("audio")
 recording_queue = []
-stop_recording = False
 
 condition = threading.Condition()
 
@@ -20,8 +19,10 @@ def add_to_queue(audio_filepath):
     recording_queue.append(audio_filepath)
 
 def transcribe_audio(model):
-    global recording_queue, stop_recording
-    while not stop_recording:
+    global recording_queue
+    t = threading.current_thread()
+    t.alive = True
+    while t.alive:
         with condition:
             while len(recording_queue) == 0 and not stop_recording:
                 condition.wait()
@@ -41,8 +42,10 @@ def transcribe_audio(model):
         os.remove(audio_filepath)
 
 def record_audio(duration=1, sample_rate=44100, channels=1, dtype='float64'):
-    global recording_queue, stop_recording
-    while not stop_recording:
+    global recording_queue
+    t = threading.current_thread()
+    t.alive = True
+    while t.alive:
         filepath = os.path.join(basepath, str(uuid.uuid4()))
         wave_filepath = os.path.normpath(filepath + ".wav")
 
@@ -70,8 +73,8 @@ def main():
     try:
         # Create model
         print("Loading transcribe model... ")
-        #model = WhisperModel("faster-distil-whisper-small.en")
-        model = WhisperModel("large-v2")
+        model = WhisperModel("faster-distil-whisper-small.en")
+        #model = WhisperModel("large-v2")
         print("Model loaded successfully.")
 
     
@@ -83,22 +86,20 @@ def main():
         record_thread.start()
         transcribe_thread.start()
 
+        # If the child thread is still running
+        while record_thread.is_alive() or transcribe_thread.is_alive():
+		    # Try to join the child thread back to parent for 0.5 seconds so interrupt can be processed
+            if record_thread.is_alive(): record_thread.join(0.1)
+            if transcribe_thread.is_alive(): transcribe_thread.join(0.1)
+
         # Wait for the threads to complete
         record_thread.join()
         transcribe_thread.join()
 
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as e:
         # Set the flag to stop recording
-        print("Stopping recording...")
-        stop_recording = True  
-
-        # Wake up the transcriber if it's waiting
-        with condition:
-            condition.notify_all()  
-
-        # Delete extra files
-        for file in recording_queue:
-            os.remove(file)
+        record_thread.alive = False
+        transcribe_thread.alive = False
 
         # Join the threads again to ensure clean exit
         if record_thread is not None and record_thread.is_alive():
@@ -106,6 +107,10 @@ def main():
 
         if transcribe_thread is not None and transcribe_thread.is_alive():
             transcribe_thread.join()
+
+        # Delete extra files
+        for file in recording_queue:
+            os.remove(file)
 
         print("Stopped recording and transcription.")
     
