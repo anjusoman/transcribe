@@ -73,8 +73,8 @@ def main():
     try:
         # Create model
         print("Loading transcribe model... ")
-        model = WhisperModel("faster-distil-whisper-small.en")
-        #model = WhisperModel("large-v2")
+        #model = WhisperModel("faster-distil-whisper-small.en")
+        model = WhisperModel("large-v2")
         print("Model loaded successfully.")
 
     
