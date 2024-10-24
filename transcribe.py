@@ -1,4 +1,5 @@
 from faster_whisper import WhisperModel
+import faster_whisper
 import sounddevice as sd
 import numpy as np
 import wave
@@ -24,10 +25,10 @@ def transcribe_audio(model):
     t.alive = True
     while t.alive:
         with condition:
-            while len(recording_queue) == 0 and not stop_recording:
+            while t.alive and len(recording_queue) == 0:
                 condition.wait()
 
-            if stop_recording:  # Check again after waking up
+            if not t.alive:  # Check again after waking up
                 break
 
             audio_filepath = recording_queue.pop(0)
@@ -68,13 +69,14 @@ def record_audio(duration=1, sample_rate=44100, channels=1, dtype='float64'):
             print(f"Failed to create {wave_filepath}")
 
 def main():
-    global recording_queue, stop_recording
+    global recording_queue
     
     try:
         # Create model
         print("Loading transcribe model... ")
+        model = "faster-whisper-tiny.en"
         #model = WhisperModel("faster-distil-whisper-small.en")
-        model = WhisperModel("large-v2")
+        model = WhisperModel(model)
         print("Model loaded successfully.")
 
     
@@ -90,11 +92,14 @@ def main():
         while record_thread.is_alive() or transcribe_thread.is_alive():
 		    # Try to join the child thread back to parent for 0.5 seconds so interrupt can be processed
             if record_thread.is_alive(): record_thread.join(0.1)
+
             if transcribe_thread.is_alive(): transcribe_thread.join(0.1)
 
         # Wait for the threads to complete
         record_thread.join()
         transcribe_thread.join()
+
+    # Create new thread in record function, create a single thread to wait on all these transcribing threads
 
     except KeyboardInterrupt as e:
         # Set the flag to stop recording
