@@ -42,7 +42,7 @@ def transcribe_audio(model):
 
         os.remove(audio_filepath)
 
-def record_audio(duration=1, sample_rate=44100, channels=1, dtype='float64'):
+def record_audio(duration=5, sample_rate=44100, channels=1, dtype='float64'):
     global recording_queue
     t = threading.current_thread()
     t.alive = True
@@ -74,8 +74,7 @@ def main():
     try:
         # Create model
         print("Loading transcribe model... ")
-        model = "faster-whisper-tiny.en"
-        #model = WhisperModel("faster-distil-whisper-small.en")
+        model = "faster-whisper-small.en"
         model = WhisperModel(model)
         print("Model loaded successfully.")
 
