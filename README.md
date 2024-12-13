@@ -2,11 +2,11 @@
 
 1. Create a Python Virtual Environment
 
-        python3 -m venv myenv
+        python3 -m venv venv
 
 2. Enter the Python Virtual Environment
 
-        source myenv/bin/activate
+        source venv/bin/activate
 
 3. Install the neccessary libraries
 
@@ -21,7 +21,7 @@
 
 1. Enter the Python Virtual Environment
 
-        source myenv/bin/activate
+        source venv/bin/activate
 
 2. Run the transcribe program
 
