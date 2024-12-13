@@ -33,7 +33,7 @@
 - multithreading using the python threading module
 - voice activity detection (VAD) to only transcribe an audio segment if there is a voice detected
 
-# Todo:
+# To do:
 
 - integrate program with microphone 
 - create program to display transcription on the display
