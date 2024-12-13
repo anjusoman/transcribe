@@ -1,3 +1,0 @@
-[submodule "faster-whisper-tiny.en"]
-	path = faster-whisper-tiny.en
-	url = https://huggingface.co/Systran/faster-whisper-tiny.en
