@@ -27,5 +27,16 @@
 
         python3 transcribe.py
 
+# Features
+
+- transcribing using the faster-whisper-small model 
+- multithreading using the python threading module
+- voice activity detection (VAD) to only transcribe an audio segment if there is a voice detected
+
+# Todo:
+
+- integrate program with microphone 
+- create program to display transcription on the display
+
 
 
