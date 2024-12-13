@@ -35,7 +35,7 @@
 
 # To do:
 
-- integrate program with microphone 
+- test/integrate the program with a microphone on the raspberry pi 
 - create program to display transcription on the display
 
 
